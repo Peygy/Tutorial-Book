@@ -1,0 +1,93 @@
+@use 'wwwroot/sass/modules/_mixins.scss' as *;
+@use 'wwwroot/sass/modules/_vars.scss' as *;
+
+
+.content{
+    &__wrapper{
+        @include flex_main(inline-flex, null, null);
+        @include indents(30px 0 0 0, null);
+    }
+    &__main{
+        @include flex_main(flex, null, center);
+        @include calc_width(393.53px);
+        flex-direction: column;
+        
+        h2{
+            font-family: $font_head;
+        }
+        a{
+            color: black;
+            text-decoration: none;
+        }
+        a:hover{
+            color: rgb(37, 37, 37);
+        }
+    }
+}
+
+.main{
+    &__title{
+        margin-bottom: 50px;
+        font-family: $font_head;
+    }
+
+    &__search{
+        @include flex_main(flex, center, center);
+
+        &-input{
+
+        }
+        &-select{
+            
+        }
+        &-submit{
+            
+        }
+    }
+
+    &__table{
+        @include flex_main(grid, null, null);
+        @include indents(0 0 0 20px, null);
+        white-space: nowrap;
+
+        &-hat{
+            @include border_table-hat;
+            font-family: $font_head;
+            background-color: $table_hat;
+        }
+        &-row{
+            @include flex_main(grid, null, null);   
+            @include border_table-row;             
+            grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr);
+        }
+        &-header{
+            @include border_table-data;
+            @include flex_main(block, center, null);
+        }
+        &-body{
+            font-family: $font_text;
+        }
+        &-data{
+            @include flex_main(flex, center, center);
+            @include indents(null, 10px 0);
+            @include border_table-data;  
+            overflow: hidden;  
+            flex-wrap: wrap;     
+
+            a{
+                @include indents(null, 0 10px);
+                font-weight: 900;
+            }
+        }
+    }
+}
+
+#empty-table{
+    grid-template-columns: repeat(1, auto);
+}
+
+@media screen and (max-width: 1086px) and (max-height: 100vh) {
+    .content__main{
+        @include calc_width(450px);
+    }
+}

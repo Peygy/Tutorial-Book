@@ -1,0 +1,15 @@
+@model PartModel
+
+@{
+    ViewBag.Title = "Просмотр статьи";
+    Layout = "/Views/Layout/MainLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/viewpost.min.css">
+
+<div class="content__wrapper">
+    <h2>Просмотр статьи: "@ViewBag.Part.Title"</h2>  
+    <div class="post__content">
+        @Html.Raw(@ViewBag.Content)
+    </div>
+</div>

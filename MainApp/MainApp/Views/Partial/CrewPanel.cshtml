@@ -1,0 +1,46 @@
+﻿@using System.Security.Claims;
+@using Microsoft.AspNetCore.Http;
+
+@functions{
+    public string GetUserRole()
+    {
+        var roleCookie = Context.User.FindFirst(ClaimsIdentity.DefaultRoleClaimType); 
+        if (roleCookie != null)
+        {
+            return roleCookie.Value;
+        }
+
+        var roleSession = Context.Session.GetString("role"); 
+        if (roleSession != null)
+        {
+            return roleSession;
+        }
+        return null;
+    }
+}
+
+<link rel="stylesheet" href="~/css/panel.min.css">
+
+@if (@GetUserRole() == "admin")
+{
+    <div class="content__menu">
+        <h2>Работа с разделами</h2>
+        <ul class="content__list">
+            @await Html.PartialAsync("~/Views/Partial/PanelMenu.cshtml");
+        </ul>
+    </div>
+}
+else if (@GetUserRole() == "editor")
+{
+    <div class="content__menu">
+        <h2>Работа с разделами</h2>
+        <ul class="content__list">
+            @await Html.PartialAsync("~/Views/Partial/PanelMenu.cshtml")
+        </ul>
+        <h2>Работа с пользователями</h2>
+        <ul class="content__list">
+            <li class="content__list-chapter"><a>Пользователи</a></li>
+            <li class="content__list-chapter"><a>Персонал</a></li>
+        </ul>
+    </div>
+}

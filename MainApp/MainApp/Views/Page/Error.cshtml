@@ -1,0 +1,22 @@
+﻿@model int
+<!DOCTYPE html>
+
+<html>
+    <head lang="ru">
+        <meta name="viewport" content="width=device-width" />
+        <title>@ViewBag.Title</title>
+        <link rel="shortcut icon" href=~/lib/favicon.ico/>
+        <link rel="stylesheet" href=~/css/error.min.css/> 
+    </head>
+    <body>
+        <div class="error__wrapper">
+            <div class="error__logo">
+                <img src="~/img/error.png" class="head-brand__logo">
+            </div>
+            <div class="error__main">
+                <h1 class="error__main-code">#@Model</h1>
+                <h2 class="error__main-description">Упс... Что-то пошло не так</h2>
+            </div>
+        </div>
+    </body>
+</html>

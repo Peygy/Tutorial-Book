@@ -1,0 +1,55 @@
+@model PartModel
+
+@{
+    ViewBag.Title = "Изменение элемента";
+    Layout = "/Views/Layout/MainLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/update-addpart.min.css">
+
+<div class="content__wrapper">
+    <h2>Изменение элемента<br>"@Model.Title"</h2>
+    <form method="post" class="form">
+        <span class="form__main-error" id="titleerror">Такое название уже существует!</span>   
+        <div class="form__main">
+            <label>Новое название: </label><br>
+            <input class="form__main-input session" asp-for="Title" type="text" id="newName" 
+            onblur="CheckExist(@Model.Id, '@Model.Parent.Table')" oninput="ValidCheck()">
+            <span class="form__main-error" id="validerror">Введите название!</span><br>
+
+            @if(ViewBag.Parents != null && ViewBag.Parents.Count != 0)
+            {
+                <select asp-for="ParentId" class="form__main-select">
+                    <option value="@Model.ParentId">По умолчанию</option>
+                    @foreach (var parent in ViewBag.Parents)
+                    {
+                        <option value="@parent.Id">@parent.Title</option>
+                    }
+                </select><br>
+            }
+            else
+            {
+                <input hidden asp-for="ParentId" value="@Model.ParentId" />
+            }
+
+            @if(@Model.Table == "posts")
+            {
+                <label>Новое cодержимое статьи:</label><br>
+                <textarea class="form__main-textarea session" wrap="hard" type="text"
+                name="newContent" id="newContent">@ViewBag.Content</textarea><br>
+            }
+
+            <div hidden>
+                <input asp-for="Id" value="@Model.Id" />
+                <input asp-for="Table" value="@Model.Table" />
+            </div>
+
+            <div class="form__main-button">
+                <input type="submit" value="Изменить" id="button" onclick="RemoveStorage()">
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="~/js/min/api.min.js"></script>
+<script src="~/js/min/textstorage.min.js"></script>

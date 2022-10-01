@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "Управление";
+    Layout = "/Views/Layout/MainLayout.cshtml";
+}
+
+@functions {
+    public string GroupName(PartModel part) => part.Table switch
+    {
+        "sections" => "Секции",
+        "subsections" => "Подсекции",
+        "chapters" => "Разделы",
+        "subchapters" => "Подразделы",
+        "posts" => "Посты",
+        _ => ""
+    };
+
+    public string TableName(PartModel part) => part.Table switch
+    {
+        "sections" => $"Подсекции в секции «{part.Title}»",
+        "subsections" => $"Разделы в подсекции «{part.Title}»",
+        "chapters" => $"Подразделы в разделе «{part.Title}»",
+        "subchapters" => $"Посты в подразделе «{part.Title}»",
+        _ => ""
+    };
+}
+
+
+<link rel="stylesheet" href="~/css/viewparts.min.css">
+<script src="~/js/min/api.min.js"></script>
+
+<div class="content__wrapper">
+    @await Html.PartialAsync("~/Views/Partial/CrewPanel.cshtml")
+    <div class="content__main">
+        @if (ViewBag.Part.Id != 0)
+        {      
+            <h2>@TableName(ViewBag.Part)</h2>
+            <h3 class="main__title">
+                <a asp-action="ViewParts" asp-route-partId="@ViewBag.Part.Parent.Id" 
+                asp-route-table="@ViewBag.Part.Parent.Table">На уровень выше</a>
+            </h3>
+        }
+        else
+        {
+            <h2>@GroupName(ViewBag.Part)</h2>
+        }
+
+        <form method="get" class="main__search">
+            <input class="main__search-input" name="title"
+            placeholder="Введите название..." type="text">
+                
+            @if (@ViewBag.Part.Id == 0)
+            {
+                <select class="main__search-select" name="filtre">
+                    <option value="child">Элемент</option>
+                    <option value="parent">Родитель</option>
+                </select>
+            }
+
+            <input class="main__search-submit" type="submit" value="Найти">
+        </form>
+
+        <table class="main__table">
+            <thead class="main__table-hat">
+                <tr class="main__table-row">
+                    <th class="main__table-header">
+                        <h3>Название элемента 
+                            @(@ViewBag.Part.Id == 0 && @ViewBag.Part.Table != "sections" ? "(родителя)" : "")
+                        </h3>
+                    </th>
+                    <th class="main__table-header">
+                        <h3>
+                            <a asp-action="AddPart" asp-route-partId="@ViewBag.Part.Id"
+                            asp-route-table="@ViewBag.Part.Table"><b>Добавить</b> новый элемент</a>
+                        </h3>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="main__table-body">
+                @if (ViewBag.Part.Children != null && ViewBag.Part.Children.Count != 0)
+                {
+                    @foreach (var part in ViewBag.Part.Children)
+                    {
+                        <tr class="main__table-row" id="@part.Id">
+                            <td class="main__table-data">@part.Title 
+                                @(@ViewBag.Part.Id == 0 && @ViewBag.Part.Table == "sections" ? "" : 
+                                @part.Parent != null ? "("+@part.Parent.Title+")" : "(Отсутствует)")
+                            </td>
+
+                            <td class="main__table-data">
+                                <a asp-action="ViewParts" asp-route-partId="@part.Id"
+                                asp-route-table="@part.Table">Подробнее</a>
+
+                                <a asp-action="UpdatePart" asp-route-partId="@part.Id"
+                                asp-route-table="@part.Table">Изменить</a>
+
+                                <a onclick="deletePart(@part.Id, '@part.Table')">Удалить</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr class="main__table-row" id="empty-table">
+                        <td class="main__table-data">Ничего нет</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

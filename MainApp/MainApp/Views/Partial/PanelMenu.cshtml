@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="~/css/panel.min.css">
+<script src="~/js/min/panel.min.js"></script>
+
+<li class="content__list-chapter">
+    <a onclick="openbox('box1')">Списки элелементов</a>
+    <div class="chapter__wrapper" id="box1" style="display: none;">
+        <ul class="chapter__list">
+            <li><a asp-action="ViewParts" asp-route-table="sections" asp-route-partId=0>Секций</a></li>
+            <li><a asp-action="ViewParts" asp-route-table="subsections" asp-route-partId=0>Подсекций</a></li>
+            <li><a asp-action="ViewParts" asp-route-table="chapters" asp-route-partId=0>Разделов</a></li>
+            <li><a asp-action="ViewParts" asp-route-table="subchapters" asp-route-partId=0>Подразделов</a></li>
+            <li><a asp-action="ViewParts" asp-route-table="posts" asp-route-partId=0>Постов</a></li>
+        </ul>
+    </div>
+</li>
+<li class="content__list-chapter">
+    <a onclick="openbox('box3')">Добавить</a>
+    <div class="chapter__wrapper" id="box3" style="display: none;">
+        <ul class="chapter__list">
+            <li><a asp-action="AddPart" asp-route-table="sections" asp-route-partId=0>Секцию</a></li>
+            <li><a asp-action="AddPart" asp-route-table="subsections" asp-route-partId=0>Подсекцию</a></li>
+            <li><a asp-action="AddPart" asp-route-table="chapters" asp-route-partId=0>Раздел</a></li>
+            <li><a asp-action="AddPart" asp-route-table="subchapters" asp-route-partId=0>Подраздел</a></li>
+            <li><a asp-action="AddPart" asp-route-table="posts" asp-route-partId=0>Пост</a></li>
+        </ul>
+    </div>
+</li>

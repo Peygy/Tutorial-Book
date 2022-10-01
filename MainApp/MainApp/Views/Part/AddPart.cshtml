@@ -1,0 +1,76 @@
+@model PartModel
+
+@{
+    ViewBag.Title = "Добавление элемента";
+    Layout = "/Views/Layout/MainLayout.cshtml";
+}
+
+@functions{
+    public string ParentName(string table)
+    {
+        switch (table)
+        {
+            case "sections":
+                return "секции";
+            case "subsections":
+                return "подсекции";
+            case "chapters":
+                return "раздела";
+            case "subchapters":
+                return "подраздела";
+            case "posts":
+                return "статьи";
+        }
+        return null;
+    }
+}
+
+<link rel="stylesheet" href="~/css/update-addpart.min.css">
+
+<div class="content__wrapper">
+    @if(ViewBag.Part.Title != null)
+    {
+        <h2>Добавление в<br>"@ViewBag.Part.Title"</h2>
+    }
+    else
+    {
+        <h2>Добавление @ParentName(ViewBag.Part.Table)</h2>
+    }
+    
+    <form method="post" class="form">
+        <span class="form__main-error" id="titleerror">Такое название уже существует!</span>   
+        <div class="form__main">        
+            <label>Название элемента:</label><br>
+            <input class="form__main-input session" asp-for="Title" type="text" id="partName" 
+            onblur="CheckExist(0, '@ViewBag.Part.Table')" oninput="ValidCheck()">
+            <span class="form__main-error" id="validerror">Введите название!</span><br>
+        
+            @if (ViewBag.Parents != null && ViewBag.Parents.Count != 0)
+            {
+                <select class="form__main-select" asp-for="ParentId">
+                    @foreach (var parent in ViewBag.Parents)
+                    {
+                        <option value="@parent.Id">@parent.Title</option>
+                    }
+                </select><br>
+            }
+            else
+            {
+                <input hidden asp-for="ParentId" value="@ViewBag.Part.Id">
+            }
+
+            @if(ViewBag.Part.Table == "subchapters" || ViewBag.Part.Table == "posts")
+            {
+                <label>Содержимое статьи:</label><br>
+                <textarea class="form__main-textarea session" wrap="hard" name="content" id="content">@ViewBag.Content</textarea><br>
+            }
+
+            <div class="form__main-button">
+                <input disabled type="submit" value="Добавить" id="button" onclick="RemoveStorage()">
+            </div>
+        </div>
+    </form>  
+</div>
+
+<script src="~/js/min/api.min.js"></script>
+<script src="~/js/min/textstorage.min.js"></script>
