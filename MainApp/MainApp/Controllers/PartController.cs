@@ -21,14 +21,13 @@ namespace MainApp.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> ViewParts(string table, int partId, string? title, string? filtre = "child")
+        public async Task<IActionResult> ViewParts(string table, int partId, string? title, string? filtre)
         {
             HttpContext.Session.Remove("refererurl");
 
-            var part = await partService.GetPartAsync(partId, table);
-            if (part == null) { return BadRequest(); }  
+            var part = await partService.GetPartAsync(partId, table, title, filtre);
+            if (part == null) { return BadRequest(); }
             part.Parent ??= new PartModel { Id = 0, Table = table };
-            partService.FilteringPartChildren(ref part, title, filtre);
             ViewBag.Part = part;
             
             if (table == "posts" && partId != 0)
@@ -54,7 +53,7 @@ namespace MainApp.Controllers
                 return View();
             }
 
-            ViewBag.Part = await partService.GetPartAsync(partId, table);
+            ViewBag.Part = await partService.GetPartAsync(partId, table, null, null);
             if (ViewBag.Part == null) { return BadRequest(); }
 
             return View();          
@@ -79,9 +78,9 @@ namespace MainApp.Controllers
         {
             HttpContext.Session.SetString("refererurl", Request.Headers["Referer"].ToString());
 
-            var part = await partService.GetPartAsync(partId, table);
+            var part = await partService.GetPartAsync(partId, table, null, null);
             if (part == null) { return BadRequest(); }
-            part.Parent ??= new PartModel { Id = 0, Table = table };
+            //part.Parent ??= new PartModel { Id = 0, Table = table };
             ViewBag.Parents = (await partService.GetAllParentsAsync(table)).Where(s => s.Id != part.ParentId).ToList();
 
             if (table == "posts")

@@ -24,17 +24,17 @@ namespace MainApp.Models
 
 
     public class Section : PartModel {
-        new public IEnumerable<Subsection>? Children { get; set; } 
+        new public IEnumerable<Subsection>? Children { get; set; }
     }
-    public class Subsection : PartModel { 
+    public class Subsection : PartModel {
         new public Section? Parent { get; set; }
         new public IEnumerable<Chapter>? Children { get; set; }
     }
-    public class Chapter : PartModel { 
+    public class Chapter : PartModel {
         new public Subsection? Parent { get; set; }
         new public IEnumerable<Subchapter>? Children { get; set; }
     }
-    public class Subchapter : PartModel { 
+    public class Subchapter : PartModel {
         new public Chapter? Parent { get; set; }
         new public IEnumerable<Post>? Children { get; set; }
     }

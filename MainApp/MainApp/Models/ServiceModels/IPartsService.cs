@@ -4,9 +4,11 @@
     public interface IPartsService
     {
         // Getting data about parts
-        Task<PartModel?> GetPartAsync(int partId, string table);
-        void FilteringPartChildren(ref PartModel part, string? title, string? filtre);
-        Task<IEnumerable<PartModel>?> GetAllParentsAsync(string table);
+        Task<PartModel?> GetPartAsync(int partId, string table, string? title, string? filtre);
+        Task<IEnumerable<T>> ChildrenFilter<T>
+        (IEnumerable<T> children, string table, string? title, string? filtre) where T : PartModel;
+        Task<IEnumerable<PartModel>> GetAllParentsAsync(string table);
+        //Task<IEnumerable<PartModel>> GetAllPartsAsync(string table);
         Task<string> GetPostContentAsync(string? contentId);
 
         // Adding data

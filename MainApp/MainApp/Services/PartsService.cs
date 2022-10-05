@@ -20,7 +20,7 @@ namespace MainApp.Services
 
 
 
-        public async Task<PartModel?> GetPartAsync(int partId, string table)
+        public async Task<PartModel?> GetPartAsync(int partId, string table, string? title, string? filtre)
         {
             try
             {
@@ -31,51 +31,55 @@ namespace MainApp.Services
                         {
                             var sections = await topicsData.Sections.ToListAsync();
                             return new PartModel { Id = partId, Table = table, 
-                            Children = sections.Cast<Section>().ToList() };
+                            Children = await ChildrenFilter<Section>(sections.Cast<Section>(), table, title, filtre) };
                         }
-                        return await topicsData.Sections
+                        var section = await topicsData.Sections
                              .Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-
+                        section.Children = await ChildrenFilter<Subsection>(section.Children, table, title, filtre);
+                        return section;
 
                     case "subsections":
                         if (partId == 0)
                         {
                             var subsections = await topicsData.Subsections.Include(p => p.Parent).ToListAsync();
                             return new Section { Id = partId, Table = table, 
-                            Children = subsections.Cast<Subsection>().ToList() };
+                            Children = await ChildrenFilter<Subsection>(subsections.Cast<Subsection>(), table, title, filtre) };
                         }
-                        return await topicsData.Subsections
+                        var subsection = await topicsData.Subsections
                             .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-
+                        subsection.Children = await ChildrenFilter<Chapter>(subsection.Children, table, title, filtre);
+                        return subsection;
 
                     case "chapters":
                         if (partId == 0)
                         {
                             var chapters = await topicsData.Chapters.Include(p => p.Parent).ToListAsync();
                             return new Subsection { Id = partId, Table = table, 
-                            Children = chapters.Cast<Chapter>().ToList() };
+                            Children = await ChildrenFilter<Chapter>(chapters.Cast<Chapter>(), table, title, filtre) };
                         }
-                        return await topicsData.Chapters
+                        var chapter = await topicsData.Chapters
                             .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-
+                        chapter.Children = await ChildrenFilter<Subchapter>(chapter.Children, table, title, filtre);
+                        return chapter;
 
                     case "subchapters":
                         if (partId == 0)
                         {
                             var subchapters = await topicsData.Subchapters.Include(p => p.Parent).ToListAsync();
                             return new Chapter { Id = partId, Table = table, 
-                            Children =  subchapters.Cast<Subchapter>().ToList() };
+                            Children =  await ChildrenFilter<Subchapter>(subchapters.Cast<Subchapter>(), table, title, filtre) };
                         }
-                        return await topicsData.Subchapters
+                        var subchapter = await topicsData.Subchapters
                             .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-
+                        subchapter.Children = await ChildrenFilter<Post>(subchapter.Children, table, title, filtre);
+                        return subchapter;
 
                     case "posts":
                         if (partId == 0)
                         {
                             var posts = await topicsData.Posts.Include(p => p.Parent).ToListAsync();
                             return new Subchapter { Id = partId, Table = table, 
-                            Children = posts.Cast<Post>().ToList() };
+                            Children = await ChildrenFilter<Post>(posts.Cast<Post>(), table, title, filtre) };
                         }
                         return await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == partId);
                 }
@@ -88,20 +92,23 @@ namespace MainApp.Services
             return null;
         }
 
-        public void FilteringPartChildren(ref PartModel part, string? title, string? filtre)
-        {
-            if (part.Children == null) { return; }    
-            if(title != null && filtre == "child")
+        public async Task<IEnumerable<T>> ChildrenFilter<T>
+        (IEnumerable<T> children, string table, string? title, string? filtre) where T : PartModel
+        {      
+            if(title != null && (filtre == "child" || filtre == null))
             {
-                part.Children = part.Children.Where(s => s.Title == title).ToList();
+                children = children.Where(s => s.Title == title).ToList();
             }
-            if(title != null && filtre == "parent" && part.Parent != null)
+            if(title != null && filtre == "parent")
             {
-                part.Children = part.Children.Where(s => s.Parent.Title == title).ToList();
+                var parent = (await GetAllParentsAsync(table)).FirstOrDefault(s => s.Title == title) ?? new PartModel{ Id = 0 };
+                children = children.Where(s => s.ParentId == parent.Id).ToList();
             }
+
+            return children;
         }
 
-        public async Task<IEnumerable<PartModel>?> GetAllParentsAsync(string table)
+        public async Task<IEnumerable<PartModel>> GetAllParentsAsync(string table)
         {
             try
             {

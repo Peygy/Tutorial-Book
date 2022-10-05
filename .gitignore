@@ -84,3 +84,4 @@ StyleCopReport.xml
 
 MainApp/MainApp/appsettings.json
 MainApp/MainApp/node_modules
+MainApp/MainApp/.vscode

@@ -52,7 +52,10 @@
             {
                 <select class="main__search-select" name="filtre">
                     <option value="child">Элемент</option>
-                    <option value="parent">Родитель</option>
+                    @if (@ViewBag.Part.Table != "sections")
+                    {
+                        <option value="parent">Родитель</option>
+                    }
                 </select>
             }
 
@@ -83,8 +86,8 @@
                     {
                         <tr class="main__table-row" id="@part.Id">
                             <td class="main__table-data">@part.Title 
-                                @(@ViewBag.Part.Id == 0 && @ViewBag.Part.Table == "sections" ? "" : 
-                                @part.Parent != null ? "("+@part.Parent.Title+")" : "(Отсутствует)")
+                                @(@ViewBag.Part.Id == 0 && @ViewBag.Part.Table != "sections" ? 
+                                @part.Parent != null ? "("+@part.Parent.Title+")" : "(Отсутствует)" : "")
                             </td>
 
                             <td class="main__table-data">
