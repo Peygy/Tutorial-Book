@@ -14,22 +14,26 @@
         <div class="form__error">
             @ViewBag.Error
         </div>
+
         <div class="form__input">
             <label asp-for="Login">Login</label><br />
             <input type="text" asp-for="Login"/><br />
             <span asp-validation-for="Login"  />
         </div>
+
         <div class="form__input">
             <label asp-for="Password">Password</label><br />
             <input type="password" asp-for="Password"/><br />
             <span asp-validation-for="Password"  />
         </div>
+
         <div>           
             <label>
                 <input id="remember" name="remember" type="checkbox" value="true">
                 Remember
             </label>
         </div>
+        
         <div class="form__button">
             <button type="submit">Войти</button>
         </div>

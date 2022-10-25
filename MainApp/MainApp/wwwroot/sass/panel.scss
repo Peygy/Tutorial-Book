@@ -35,3 +35,11 @@
 a:hover{
     cursor: pointer;
 }
+
+
+@media screen and (max-width: 850px) and (max-height: 100vh) {
+    .content__menu{
+        padding: 0 0 0 20px;
+        width: 300px;
+    }
+}

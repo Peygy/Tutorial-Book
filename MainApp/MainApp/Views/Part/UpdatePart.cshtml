@@ -17,6 +17,7 @@
             onblur="CheckExist(@Model.Id, '@Model.Parent.Table')" oninput="ValidCheck()">
             <span class="form__main-error" id="validerror">Введите название!</span><br>
 
+
             @if(ViewBag.Parents != null && ViewBag.Parents.Count != 0)
             {
                 <select asp-for="ParentId" class="form__main-select">
@@ -32,12 +33,14 @@
                 <input hidden asp-for="ParentId" value="@Model.ParentId" />
             }
 
+
             @if(@Model.Table == "posts")
             {
                 <label>Новое cодержимое статьи:</label><br>
                 <textarea class="form__main-textarea session" wrap="hard" type="text"
                 name="newContent" id="newContent">@ViewBag.Content</textarea><br>
             }
+
 
             <div hidden>
                 <input asp-for="Id" value="@Model.Id" />

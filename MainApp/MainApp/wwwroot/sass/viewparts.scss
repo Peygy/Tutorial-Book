@@ -4,13 +4,14 @@
 
 .content{
     &__wrapper{
-        @include flex_main(inline-flex, null, null);
+        @include flex_main(flex, null, null);
         @include indents(30px 0 0 0, null);
     }
     &__main{
         @include flex_main(flex, null, center);
-        @include calc_width(393.53px);
+        flex-grow: 1;
         flex-direction: column;
+        text-align: center;
         
         h2{
             font-family: $font_head;
@@ -27,21 +28,48 @@
 
 .main{
     &__title{
-        margin-bottom: 50px;
+        margin-bottom: 30px;
         font-family: $font_head;
     }
 
     &__search{
         @include flex_main(flex, center, center);
-
+        @include indents(10px 0, null);
+        
         &-input{
+            @include flex_main(flex, null, null);
+            font-family: $font_text;
+            
+            input{
+                @include indents(null, 5.5px);
+                width: 300px;
+            }
+        }
 
+        &-panel{
+            @include flex_main(flex, center, center);
         }
         &-select{
-            
+            @include indents(null, 5px);
+            font-family: $font_text;
+            border-radius: 0px;
+            cursor: pointer;
         }
         &-submit{
-            
+            @include indents(null, 7px 10px);
+            border: 0;
+            border-top-right-radius: 2px;
+            border-bottom-right-radius: 2px;
+
+            font-family: $font_text;
+            background-color: $back_head;
+            color: $front_head_link;
+            cursor: pointer;
+
+            &:hover{
+                background-color: $back_border;
+                color: $front_head_link;
+            }
         }
     }
 
@@ -72,7 +100,8 @@
             @include indents(null, 10px 0);
             @include border_table-data;  
             overflow: hidden;  
-            flex-wrap: wrap;     
+            flex-wrap: wrap; 
+            text-align: center;    
 
             a{
                 @include indents(null, 0 10px);
@@ -86,8 +115,31 @@
     grid-template-columns: repeat(1, auto);
 }
 
+
 @media screen and (max-width: 1086px) and (max-height: 100vh) {
     .content__main{
         @include calc_width(450px);
+    }
+}
+
+@media screen and (max-width: 989px) and (max-height: 100vh) {
+    .main__table{
+        @include indents(1px, null);
+        white-space: normal;
+
+        &-row{
+            grid-template-columns: minmax(150px, 200px) minmax(150px, 200px);
+        }
+    }
+
+    .main__search{
+        @include indents(10px 0, null);
+
+        &-input{        
+            input{
+                @include indents(null, 5.5px);
+                width: 200px;
+            }
+        }
     }
 }

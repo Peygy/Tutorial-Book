@@ -2,9 +2,9 @@
 {
     public interface IMongoService
     {
-        Task<ContentModel?> GetContentAsync(string? id);
+        Task<string> GetContentAsync(string? id);
 
-        Task<string> AddContentAsync(ContentModel obj);
+        Task<string?> AddContentAsync(ContentModel obj);
 
         Task UpdateContentAsync(ContentModel obj);
 

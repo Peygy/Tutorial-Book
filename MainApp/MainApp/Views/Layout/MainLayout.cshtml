@@ -49,6 +49,7 @@
                 </ul>                
             </nav>
 
+
             <div class="head__face">
                 <div class="head__brand">
                     <a asp-controller="Page" asp-action="Welcome">
@@ -57,6 +58,7 @@
                     </a>
                 </div>
             </div>
+
             
             <div class="head__account">
                 @if (@GetUserRole() == null)
@@ -73,7 +75,7 @@
         </div>
     </header>
 
-    <main class="">
+    <main>
         @RenderBody()
     </main>
 
@@ -86,6 +88,7 @@
                     </a>
                     <span> Copyright © 2022 LeoIsak, Inc. </span>
                 </div>
+                
                 
                 <ul class="bottom__info">
                     <li class="bottom-info__item"><a asp-controller="#" asp-action="#">Правообладателям</a></li>

@@ -44,23 +44,29 @@
             <h2>@GroupName(ViewBag.Part)</h2>
         }
 
-        <form method="get" class="main__search">
-            <input class="main__search-input" name="title"
-            placeholder="Введите название..." type="text">
-                
-            @if (@ViewBag.Part.Id == 0)
-            {
-                <select class="main__search-select" name="filtre">
-                    <option value="child">Элемент</option>
-                    @if (@ViewBag.Part.Table != "sections")
-                    {
-                        <option value="parent">Родитель</option>
-                    }
-                </select>
-            }
 
-            <input class="main__search-submit" type="submit" value="Найти">
+        <form method="get" class="main__search">
+            <div class="main__search-input">
+                <input name="title"
+                placeholder="Введите название..." type="text">
+            </div>
+                
+            <div class="main__search-panel">
+                 @if (@ViewBag.Part.Id == 0)
+                {
+                    <select class="main__search-select" name="filtre">
+                        <option value="child">Элемент</option>
+                        @if (@ViewBag.Part.Table != "sections")
+                        {
+                            <option value="parent">Родитель</option>
+                        }
+                        </select>
+                }
+
+                <input class="main__search-submit" type="submit" value="Поиск">
+            </div>
         </form>
+
 
         <table class="main__table">
             <thead class="main__table-hat">
@@ -78,6 +84,7 @@
                     </th>
                 </tr>
             </thead>
+
 
             <tbody class="main__table-body">
                 @if (ViewBag.Part.Children != null && ViewBag.Part.Children.Count != 0)

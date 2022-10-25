@@ -80,7 +80,7 @@ namespace MainApp.Controllers
 
             var part = await partService.GetPartAsync(partId, table, null, null);
             if (part == null) { return BadRequest(); }
-            //part.Parent ??= new PartModel { Id = 0, Table = table };
+            part.Parent ??= new PartModel { Id = 0, Table = table };
             ViewBag.Parents = (await partService.GetAllParentsAsync(table)).Where(s => s.Id != part.ParentId).ToList();
 
             if (table == "posts")

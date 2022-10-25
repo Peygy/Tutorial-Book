@@ -37,11 +37,9 @@ namespace MainApp.Controllers
                     await authService.AddUserAsync(newUser);
                     return RedirectToAction("Study", "Page");
                 }
-                else
-                {
-                    ViewBag.Error = "Пользователь с таким логином уже существует";
-                    return View(newUser);
-                }
+
+                ViewBag.Error = "Пользователь с таким логином уже существует";
+                return View(newUser);
             }
 
             return View(newUser);

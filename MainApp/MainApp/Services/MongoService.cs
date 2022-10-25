@@ -22,22 +22,22 @@ namespace MainApp.Services
         }
 
 
-        public async Task<ContentModel?> GetContentAsync(string? id)
+        public async Task<string> GetContentAsync(string? id)
         {
             try
             {
-                return await contentsCollection.Find(new BsonDocument("_id",
-                    new ObjectId(id))).FirstOrDefaultAsync();
+                return (await contentsCollection.Find(new BsonDocument("_id",
+                    new ObjectId(id))).FirstOrDefaultAsync()).Content;
             }
             catch (Exception ex)
             {
                 log.LogError(ex.Message);
             }
 
-            return null;
+            return string.Empty;
         }
 
-        public async Task<string> AddContentAsync(ContentModel obj)
+        public async Task<string?> AddContentAsync(ContentModel obj)
         {
             try
             {

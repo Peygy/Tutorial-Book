@@ -29,57 +29,44 @@ namespace MainApp.Services
                     case "sections":
                         if (partId == 0)
                         {
-                            var sections = await topicsData.Sections.ToListAsync();
                             return new PartModel { Id = partId, Table = table, 
-                            Children = await ChildrenFilter<Section>(sections.Cast<Section>(), table, title, filtre) };
+                            Children = await ChildrenFilter(await topicsData.Sections.ToListAsync(), table, title, filtre) };
                         }
-                        var section = await topicsData.Sections
-                             .Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                        section.Children = await ChildrenFilter<Subsection>(section.Children, table, title, filtre);
-                        return section;
+                        var section = await topicsData.Sections.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (section != null) { section.Children = await ChildrenFilter(section.Children, table, title, filtre); } return section;
 
                     case "subsections":
                         if (partId == 0)
                         {
-                            var subsections = await topicsData.Subsections.Include(p => p.Parent).ToListAsync();
                             return new Section { Id = partId, Table = table, 
-                            Children = await ChildrenFilter<Subsection>(subsections.Cast<Subsection>(), table, title, filtre) };
+                            Children = await ChildrenFilter(await topicsData.Subsections.Include(p => p.Parent).ToListAsync(), table, title, filtre) };
                         }
-                        var subsection = await topicsData.Subsections
-                            .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                        subsection.Children = await ChildrenFilter<Chapter>(subsection.Children, table, title, filtre);
-                        return subsection;
+                        var subsection = await topicsData.Subsections.Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (subsection != null) { subsection.Children = await ChildrenFilter(subsection.Children, table, title, filtre); } return subsection;
 
                     case "chapters":
                         if (partId == 0)
                         {
-                            var chapters = await topicsData.Chapters.Include(p => p.Parent).ToListAsync();
                             return new Subsection { Id = partId, Table = table, 
-                            Children = await ChildrenFilter<Chapter>(chapters.Cast<Chapter>(), table, title, filtre) };
+                            Children = await ChildrenFilter(await topicsData.Chapters.Include(p => p.Parent).ToListAsync(), table, title, filtre) };
                         }
-                        var chapter = await topicsData.Chapters
-                            .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                        chapter.Children = await ChildrenFilter<Subchapter>(chapter.Children, table, title, filtre);
-                        return chapter;
+                        var chapter = await topicsData.Chapters.Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (chapter != null) { chapter.Children = await ChildrenFilter(chapter.Children, table, title, filtre); } return chapter;
 
                     case "subchapters":
                         if (partId == 0)
                         {
-                            var subchapters = await topicsData.Subchapters.Include(p => p.Parent).ToListAsync();
                             return new Chapter { Id = partId, Table = table, 
-                            Children =  await ChildrenFilter<Subchapter>(subchapters.Cast<Subchapter>(), table, title, filtre) };
+                            Children =  await ChildrenFilter(await topicsData.Subchapters.Include(p => p.Parent).ToListAsync(), table, title, filtre) };
                         }
-                        var subchapter = await topicsData.Subchapters
-                            .Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                        subchapter.Children = await ChildrenFilter<Post>(subchapter.Children, table, title, filtre);
-                        return subchapter;
+                        var subchapter = await topicsData.Subchapters.Include(p => p.Parent).Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (subchapter != null) { subchapter.Children = await ChildrenFilter(subchapter.Children, table, title, filtre); } return subchapter;
 
                     case "posts":
                         if (partId == 0)
                         {
-                            var posts = await topicsData.Posts.Include(p => p.Parent).ToListAsync();
                             return new Subchapter { Id = partId, Table = table, 
-                            Children = await ChildrenFilter<Post>(posts.Cast<Post>(), table, title, filtre) };
+                            Children = await ChildrenFilter(await topicsData.Posts.Include(p => p.Parent).ToListAsync(), table, title, filtre) };
                         }
                         return await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == partId);
                 }
@@ -92,14 +79,16 @@ namespace MainApp.Services
             return null;
         }
 
-        public async Task<IEnumerable<T>> ChildrenFilter<T>
-        (IEnumerable<T> children, string table, string? title, string? filtre) where T : PartModel
-        {      
+
+        public async Task<IEnumerable<T>?> ChildrenFilter<T>
+        (IEnumerable<T>? children, string table, string? title, string? filtre) where T : PartModel
+        {
+            if (children == null) { return null; }
             if(title != null && (filtre == "child" || filtre == null))
             {
                 children = children.Where(s => s.Title == title).ToList();
             }
-            if(title != null && filtre == "parent")
+            else if(title != null && filtre == "parent")
             {
                 var parent = (await GetAllParentsAsync(table)).FirstOrDefault(s => s.Title == title) ?? new PartModel{ Id = 0 };
                 children = children.Where(s => s.ParentId == parent.Id).ToList();
@@ -112,45 +101,36 @@ namespace MainApp.Services
         {
             try
             {
-                switch (table)
+                return table switch
                 {
-                    case "subsections":
-                        var allSections = await topicsData.Sections.ToListAsync();
-                        return allSections.Cast<PartModel>().ToList();
-
-                    case "chapters":
-                        var allSubsections = await topicsData.Subsections.ToListAsync();
-                        return allSubsections.Cast<PartModel>().ToList();
-
-                    case "subchapters":
-                        var allChapters = await topicsData.Chapters.ToListAsync();
-                        return allChapters.Cast<PartModel>().ToList();
-
-                    case "posts":
-                        var allSubchapters = await topicsData.Subchapters.ToListAsync();
-                        return allSubchapters.Cast<PartModel>().ToList();
-                }
+                    "subsections" => (await topicsData.Sections.ToListAsync()).Cast<PartModel>().ToList(),
+                    "chapters" => (await topicsData.Subsections.ToListAsync()).Cast<PartModel>().ToList(),
+                    "subchapters" => (await topicsData.Chapters.ToListAsync()).Cast<PartModel>().ToList(),
+                    "posts" => (await topicsData.Subchapters.ToListAsync()).Cast<PartModel>().ToList(),
+                    _ => new List<PartModel>()
+                };
             }
             catch (Exception ex)
             {
                 log.LogError(ex.Message);
             }
 
-            return null;
+            return new List<PartModel>();
         }
 
         public async Task<string> GetPostContentAsync(string? contentId)
         {
             try
             {
-                return (await contentData.GetContentAsync(contentId)).Content;
+                var content = await contentData.GetContentAsync(contentId);
+                if (content != null) { return content; }
             }
             catch (Exception ex)
             {
                 log.LogError(ex.Message);
             }
 
-            return null;
+            return "Пост ничего не содержит!";
         }
 
 
@@ -159,17 +139,6 @@ namespace MainApp.Services
         {
             try
             {
-                if(newPart.ParentId != 0)
-                {
-                    newPart.Table = newPart.Table switch{
-                        "sections" => "subsections",
-                        "subsections" => "chapters",
-                        "chapters" => "subchapters",
-                        "subchapters" => "posts",
-                        _ => string.Empty,
-                    };
-                }
-
                 switch (newPart.Table)
                 {
                     case "sections":
@@ -246,9 +215,9 @@ namespace MainApp.Services
                 switch (part.Table)
                 {
                     case "sections":
-                        if (!topicsData.Sections.Any(s => s.Id != part.Id && s.Title == part.Title))
+                        var section = await topicsData.Sections.FirstOrDefaultAsync(s => s.Id == part.Id);
+                        if (section != null)
                         {
-                            var section = await topicsData.Sections.FirstOrDefaultAsync(s => s.Id == part.Id);
                             section.Title = part.Title;
                             section.CreatedDate = DateTime.UtcNow;
 
@@ -259,9 +228,9 @@ namespace MainApp.Services
                         break;
 
                     case "subsections":
-                        if (!topicsData.Subsections.Any(s => s.Id != part.Id && s.Title == part.Title))
+                        var subsection = await topicsData.Subsections.FirstOrDefaultAsync(s => s.Id == part.Id);
+                        if (subsection != null)
                         {
-                            var subsection = await topicsData.Subsections.FirstOrDefaultAsync(s => s.Id == part.Id);
                             subsection.Title = part.Title;
                             subsection.CreatedDate = DateTime.UtcNow;
 
@@ -275,9 +244,9 @@ namespace MainApp.Services
                         break;
 
                     case "chapters":
-                        if (!topicsData.Chapters.Any(s => s.Id != part.Id && s.Title == part.Title))
+                        var chapter = await topicsData.Chapters.FirstOrDefaultAsync(s => s.Id == part.Id);
+                        if (chapter != null)
                         {
-                            var chapter = await topicsData.Chapters.FirstOrDefaultAsync(s => s.Id == part.Id);
                             chapter.Title = part.Title;
                             chapter.CreatedDate = DateTime.UtcNow;
 
@@ -291,9 +260,9 @@ namespace MainApp.Services
                         break;
 
                     case "subchapters":
-                        if (!topicsData.Subchapters.Any(s => s.Id != part.Id && s.Title == part.Title))
+                        var subchapter = await topicsData.Subchapters.FirstOrDefaultAsync(s => s.Id == part.Id);
+                        if (subchapter != null)
                         {
-                            var subchapter = await topicsData.Subchapters.FirstOrDefaultAsync(s => s.Id == part.Id);
                             subchapter.Title = part.Title;
                             subchapter.CreatedDate = DateTime.UtcNow;
 
@@ -307,9 +276,9 @@ namespace MainApp.Services
                         break;
 
                     case "posts":
-                        if (!topicsData.Posts.Any(s => s.Id != part.Id && s.Title == part.Title))
+                        var post = await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == part.Id);
+                        if (post != null)
                         {
-                            var post = await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == part.Id);
                             await contentData.UpdateContentAsync(new ContentModel { Id = post.ContentId, Content = newContent });
                             post.Title = part.Title;
                             post.CreatedDate = DateTime.UtcNow;
@@ -337,28 +306,18 @@ namespace MainApp.Services
         {
             try
             {
-                switch (parentTable)
-                {
-                    case "sections":
-                        var sections = await topicsData.Sections.ToListAsync();                       
-                        return sections.Any(s => s.Id!=partId && s.Title==title);
+                return parentTable switch {
+                    "sections" => (await topicsData.Sections.ToListAsync()).Any(s => s.Id!=partId && s.Title==title),
 
-                    case "subsections":
-                        var subsections = await topicsData.Subsections.ToListAsync();
-                        return subsections.Any(s => s.Id!=partId && s.Title==title);
+                    "subsections" => (await topicsData.Subsections.ToListAsync()).Any(s => s.Id!=partId && s.Title==title),
 
-                    case "chapters":
-                        var chapters = await topicsData.Chapters.ToListAsync();
-                        return chapters.Any(s => s.Id!=partId && s.Title==title);
+                    "chapters" => (await topicsData.Chapters.ToListAsync()).Any(s => s.Id!=partId && s.Title==title),
 
-                    case "subchapters":
-                        var subchapters = await topicsData.Subchapters.ToListAsync();
-                        return subchapters.Any(s => s.Id!=partId && s.Title==title);
+                    "subchapters" => (await topicsData.Subchapters.ToListAsync()).Any(s => s.Id!=partId && s.Title==title),
 
-                    case "posts":
-                        var posts = await topicsData.Posts.ToListAsync();
-                        return posts.Any(s => s.Id!=partId && s.Title==title);
-                }
+                    "posts" => (await topicsData.Posts.ToListAsync()).Any(s => s.Id!=partId && s.Title==title),
+                    _ => true
+                };
             }
             catch (Exception ex)
             {
@@ -377,15 +336,9 @@ namespace MainApp.Services
                 switch (table)
                 {
                     case "sections":
-                        if (topicsData.Sections.Any(s => s.Id == partId))
+                        var section = await topicsData.Sections.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (section != null)
                         {
-                            var section = await topicsData.Sections.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                            foreach(var subsection in section.Children)
-                            {
-                                subsection.ParentId = 0;
-                                await topicsData.SaveChangesAsync();
-                            }
-
                             topicsData.Sections.Remove(section);
                             await topicsData.SaveChangesAsync();
                             return section.Id;
@@ -393,15 +346,9 @@ namespace MainApp.Services
                         break;
 
                     case "subsections":
-                        if (topicsData.Subsections.Any(s => s.Id == partId))
+                        var subsection = await topicsData.Subsections.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (subsection != null)
                         {
-                            var subsection = await topicsData.Subsections.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                            foreach (var chapter in subsection.Children)
-                            {
-                                chapter.ParentId = 0;
-                                await topicsData.SaveChangesAsync();
-                            }
-
                             topicsData.Subsections.Remove(subsection);
                             await topicsData.SaveChangesAsync();
                             return subsection.Id;
@@ -409,15 +356,9 @@ namespace MainApp.Services
                         break;
 
                     case "chapters":
-                        if (topicsData.Chapters.Any(s => s.Id == partId))
+                        var chapter = await topicsData.Chapters.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (chapter != null)
                         {
-                            var chapter = await topicsData.Chapters.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                            foreach (var subchapter in chapter.Children)
-                            {
-                                subchapter.ParentId = 0;
-                                await topicsData.SaveChangesAsync();
-                            }
-
                             topicsData.Chapters.Remove(chapter);
                             await topicsData.SaveChangesAsync();
                             return chapter.Id;
@@ -425,15 +366,9 @@ namespace MainApp.Services
                         break;
 
                     case "subchapters":
-                        if (topicsData.Subchapters.Any(s => s.Id == partId))
+                        var subchapter = await topicsData.Subchapters.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
+                        if (subchapter != null)
                         {
-                            var subchapter = await topicsData.Subchapters.Include(p => p.Children).FirstOrDefaultAsync(s => s.Id == partId);
-                            foreach (var post in subchapter.Children)
-                            {
-                                post.ParentId = 0;
-                                await topicsData.SaveChangesAsync();
-                            }
-
                             topicsData.Subchapters.Remove(subchapter);
                             await topicsData.SaveChangesAsync();
                             return subchapter.Id;
@@ -441,9 +376,9 @@ namespace MainApp.Services
                         break;
 
                     case "posts":
-                        if (topicsData.Posts.Any(s => s.Id == partId))
+                        var post = await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == partId);
+                        if (post != null)
                         {
-                            var post = await topicsData.Posts.FirstOrDefaultAsync(s => s.Id == partId);
                             topicsData.Posts.Remove(post);
                             await topicsData.SaveChangesAsync();
                             await contentData.RemoveContentAsync(post.ContentId);
